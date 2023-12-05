@@ -1,134 +1,220 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Travel Time Calculator</title>
+    <title>Travelia - Travel Time Calculator</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            margin: 20px;
-            background-color: #282c34;
-            color: #61dafb;
+            margin: 0;
+            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
+            background-color: #f4f4f4;
         }
 
         h1 {
-            color: #61dafb;
+            color: #333;
         }
 
-        #travelForm {
-            max-width: 400px;
-            width: 100%;
-            padding: 20px;
-            background-color: #444;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            box-sizing: border-box;
+        form {
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 80%;
+            margin-top: 20px;
         }
 
         label {
-            display: block;
-            margin-bottom: 8px;
-            color: #61dafb;
+            margin: 10px 0;
+            font-weight: bold;
         }
 
         input {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 16px;
+            padding: 8px;
+            margin: 5px 0;
             box-sizing: border-box;
-            background-color: #555;
-            border: 1px solid #777;
-            color: #fff;
         }
 
         button {
-            background-color: #61dafb;
-            color: #fff;
-            padding: 10px 20px;
+            background-color: #4caf50;
+            color: white;
+            padding: 10px;
             border: none;
-            border-radius: 4px;
             cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s;
         }
 
         button:hover {
-            background-color: #4fa3d1;
+            background-color: #45a049;
         }
 
         #result {
             margin-top: 20px;
-            padding: 10px;
-            background-color: #555;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            display: none;
-            animation: fadeIn 0.5s ease-in-out;
+            text-align: center;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
+        #graphContainer {
+            margin-top: 20px;
+            text-align: center;
         }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .loading img {
+            width: 50px;
+            height: 50px;
+        }
+
+        #result p {
+            margin-bottom: 5px;
+        }
+
+        #result span {
+            font-weight: bold;
+            color: #4caf50;
+        }
+
+        #fuelType {
+        width: 100%;
+        padding: 8px;
+        margin: 5px 0;
+        box-sizing: border-box;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    /* Optional: Style the dropdown arrow */
+    #fuelType::after {
+        content: '\25BC'; /* Unicode character for down arrow */
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+    }
+
     </style>
 </head>
-<body>
 
-    <h1>Travel Time Calculator</h1>
+<h1>Travelia - Travel Time Calculator</h1>
 
-    <form id="travelForm">
-        <label for="city1">From City:</label>
-        <input type="text" id="city1" required>
+<form id="travelForm">
+    <label for="city1">From City:</label>
+    <input type="text" id="city1" placeholder="Enter origin city" required>
 
-        <label for="city2">To City:</label>
-        <input type="text" id="city2" required>
+    <label for="city2">To City:</label>
+    <input type="text" id="city2" placeholder="Enter destination city" required>
 
-        <label for="desiredTime">Desired Time:</label>
-        <input type="time" id="desiredTime" required>
+    <label for="desiredTime">Desired Time:</label>
+    <input type="time" id="desiredTime" required>
 
-        <button type="button" onclick="calculateTravelTime()">Calculate Travel Time</button>
-    </form>
+    <label for="averageConsumption">Average Consumption (km/l):</label>
+    <input type="number" id="averageConsumption" placeholder="Enter average consumption" required>
+
+    <label for="fuelType">Fuel Type:</label>
+    <select id="fuelType" required>
+        <option value="petrol">Petrol</option>
+        <option value="diesel">Diesel</option>
+        <option value="cng">CNG</option>
+    </select>
+
+    <label for="fuelPrice">Fuel Price (per liter):</label>
+    <input type="number" id="fuelPrice" placeholder="Enter fuel price" required>
+
+    <button type="submit">Calculate Travel Time</button>
+</form>
 
     <div id="result"></div>
 
+    <div id="graphContainer"></div>
+
+    <!-- Loading animation -->
+    <div class="loading" id="loadingContainer">
+        <img src="Walk.gif" alt="Loading">
+    </div>
+
+    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14033.430149241209!2d77.5734042!3d28.4386366!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cfd5b347eb62d%3A0x52c2b7494e204dce!2sNew%20Delhi%2C%20Delhi!5e0!3m2!1sen!2sin!4v1701350639857!5m2!1sen!2sin" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+
     <script>
+        // Updated: added event listener for form submission
+        document.getElementById('travelForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent the default form submission
+            calculateTravelTime();
+        });
+
         async function calculateTravelTime() {
+            document.getElementById('loadingContainer').style.display = 'block';
+
             const city1 = document.getElementById('city1').value;
             const city2 = document.getElementById('city2').value;
             const desiredTime = document.getElementById('desiredTime').value;
+            const averageConsumption = parseFloat(document.getElementById('averageConsumption').value);
+            const fuelType = document.getElementById('fuelType').value;
+            const fuelPrice = parseFloat(document.getElementById('fuelPrice').value);
 
             const url = `http://127.0.0.1:5000/time?city1=${city1}&city2=${city2}&desired_time=${desiredTime}`;
-            
+
             try {
                 const response = await fetch(url);
                 const data = await response.json();
 
                 if (response.ok) {
-                    document.getElementById('result').innerHTML = `
-                        <p>Estimated travel time from ${data.city1} to ${data.city2} is ${data.predicted_time} hours.</p>
+                    const fuelCost = calculateFuelCost(averageConsumption, data.distance, fuelType, fuelPrice, data.traffic_variation);
+
+                    const resultContainer = document.getElementById('result');
+                    resultContainer.innerHTML = `
+                        <p>Estimated travel time from ${data.city1} to ${data.city2} is <span>${data.predicted_time} hours</span>.</p>
+                        <p>Expected fuel cost: ₹${fuelCost.cost.toFixed(2)}</p>
+                        <p>Fuel used: ${fuelCost.fuelUsed.toFixed(2)} liters</p>
+                        <p>Traffic variation: ${data.traffic_variation}%</p>
                     `;
+                    resultContainer.style.display = 'block';
                 } else {
                     document.getElementById('result').innerHTML = `
                         <p>Error: ${data.error}</p>
                     `;
                 }
-                document.getElementById('result').style.display = 'block';
             } catch (error) {
                 console.error('Error:', error);
+            } finally {
+                document.getElementById('loadingContainer').style.display = 'none';
             }
+        }
+
+        function calculateFuelCost(averageConsumption, distance, fuelType, fuelPrice, trafficVariation) {
+            const distanceInKm = distance;
+            const fuelRequired = distanceInKm / averageConsumption;
+
+            // Adjust fuel consumption based on traffic variation
+            const adjustedFuelRequired = fuelRequired * (1 + trafficVariation / 100);
+
+            const fuelCost = adjustedFuelRequired * fuelPrice;
+
+            return {
+                cost: fuelCost,
+                fuelUsed: adjustedFuelRequired,
+            };
         }
     </script>
 
 </body>
+
 </html>
